@@ -1,0 +1,24 @@
+{
+  "name": "lotion-mock",
+  "version": "1.0.0",
+  "description": "A simple utility to make it easier to write unit tests for Lotion applications.",
+  "main": "wallaby.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "12.0.2",
+    "lodash.get": "4.4.2",
+    "lotion-state-machine": "0.2.3",
+    "proxmise": "1.0.0"
+  },
+  "devDependencies": {
+    "ava": "1.4.1"
+  }
+}
