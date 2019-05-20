@@ -48,4 +48,4 @@ async function main() {
 main()
 ```
 
-Check out a longer usage example [here.](https://github.com/nomic-io/lotion-mock/blob/master/test/counter.js)
+Check out a longer usage example [here.](https://github.com/nomic-io/lotion-mock/blob/master/test/counter.ts)
