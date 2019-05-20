@@ -2,7 +2,7 @@
   "name": "lotion-mock",
   "version": "1.0.0",
   "description": "A simple utility to make it easier to write unit tests for Lotion applications.",
-  "main": "wallaby.js",
+  "main": "dist/index.js",
   "directories": {
     "test": "test"
   },
