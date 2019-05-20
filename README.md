@@ -5,7 +5,7 @@ A simple utility to make it easier to write unit tests for Lotion applications.
 ## Usage
 
 ```
-$ npm install lotion-mock
+$ npm install --save-dev lotion-mock
 ```
 
 ```js
