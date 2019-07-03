@@ -1,6 +1,10 @@
 import StateMachine from 'lotion-state-machine'
 import { stringify, parse } from 'deterministic-json'
 import mockedConnect from './connect'
+import get = require('lodash.get')
+let express = require('express')
+let cors = require('cors')
+let bodyParser = require('body-parser')
 
 interface Checkpoint {
   state: any
@@ -17,10 +21,36 @@ let MockedLotion: any = function(opts) {
   let stateMachine
   return {
     height: 1,
-    start() {
+
+    close() {
+      return new Promise((resolve, reject) => {
+        this.httpServer.close(() => resolve())
+      })
+    },
+    start(port?: number) {
       stateMachine = app.compile(opts.initialState)
       stateMachine.initialize()
+      if (port) {
+        let expressApp = express()
+        expressApp.use(cors())
+        expressApp.use(bodyParser.json())
+
+        expressApp.post('/txs', (req, res) => {
+          let tx = req.body
+          res.json({ errors: this.run(tx), height: this.height })
+        })
+
+        expressApp.get('/state', (req, res) => {
+          let statePart = req.query.path
+            ? get(this.state, req.query.path)
+            : this.state
+          res.json(statePart)
+        })
+
+        this.httpServer = expressApp.listen(port)
+      }
     },
+
     run(blockOrTx) {
       let transactions = []
       let errors = []
