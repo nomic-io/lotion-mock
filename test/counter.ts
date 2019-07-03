@@ -24,9 +24,13 @@ test.beforeEach(function(t) {
     state.blockCount++
   })
 
-  app.start()
+  app.start(31337)
 
   t.context = { app }
+})
+
+test.afterEach(async function(t) {
+  await t.context.app.close()
 })
 
 test('counter app with checkpointing', function(t) {
@@ -63,5 +67,14 @@ test('counter app light client', async function(t) {
   t.false(result.ok)
   t.is(result.height, '0')
   t.is(app.height, 3)
+  t.is(await state.count, 1)
+})
+
+test('counter app http light client', async function(t) {
+  let { send, state } = await lotion.connect(31337)
+  t.is(await state.count, 0)
+  t.is((await send({ nonce: 0 })).ok, true)
+  t.is((await state).blockCount, 101)
+  t.is((await send({ nonce: 1000 })).ok, false)
   t.is(await state.count, 1)
 })
