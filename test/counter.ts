@@ -1,6 +1,7 @@
 import anyTest, { TestInterface } from 'ava'
 import lotion = require('../src/index')
-let test = anyTest as TestInterface<{ app: any }>
+import * as fs from 'fs'
+let test = anyTest as TestInterface<{ app: any; appStartedP: Promise<any> }>
 
 test.beforeEach(function(t) {
   let app = lotion({
@@ -24,9 +25,9 @@ test.beforeEach(function(t) {
     state.blockCount++
   })
 
-  app.start(31337)
+  let appStartedP = app.start(31337)
 
-  t.context = { app }
+  t.context = { app, appStartedP }
 })
 
 test.afterEach(async function(t) {
@@ -77,4 +78,12 @@ test('counter app http light client', async function(t) {
   t.is((await state).blockCount, 101)
   t.is((await send({ nonce: 1000 })).ok, false)
   t.is(await state.count, 1)
+})
+
+test('mocked lotion data directory', async function(t) {
+  let { home, genesisPath } = await t.context.appStartedP
+  t.is(
+    typeof JSON.parse(fs.readFileSync(genesisPath).toString()).chain_id,
+    'string'
+  )
 })

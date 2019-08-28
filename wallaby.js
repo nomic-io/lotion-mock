@@ -4,7 +4,7 @@ module.exports = function(wallaby) {
       type: 'node',
       runner: 'node'
     },
-    files: ['src/*.ts'],
+    files: ['src/*', 'data/*'],
     tests: ['test/*.ts'],
     testFramework: 'ava',
     workers: {

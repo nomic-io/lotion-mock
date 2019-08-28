@@ -2,6 +2,9 @@ import StateMachine from 'lotion-state-machine'
 import { stringify, parse } from 'deterministic-json'
 import mockedConnect from './connect'
 import get = require('lodash.get')
+import { join } from 'path'
+import * as fs from 'fs-extra'
+import * as os from 'os'
 let express = require('express')
 let cors = require('cors')
 let bodyParser = require('body-parser')
@@ -27,16 +30,18 @@ let MockedLotion: any = function(opts) {
         this.httpServer.close(() => resolve())
       })
     },
-    start(port?: number) {
+    async start(port?: number) {
       stateMachine = app.compile(opts.initialState)
-      stateMachine.initialize()
+      stateMachine.initialize(opts.initialState, {
+        validators: { 'bxrfV5GVu/GneAax2n7v45CJ+DPNh2VyZ1859Kw/eeU=': 10 }
+      })
       if (port) {
         let expressApp = express()
         expressApp.use(cors())
         expressApp.use(bodyParser.json())
 
         expressApp.post('/txs', (req, res) => {
-          let tx = req.body
+          let tx = parse(req.body.tx)
           res.json({ errors: this.run(tx), height: this.height })
         })
 
@@ -44,11 +49,29 @@ let MockedLotion: any = function(opts) {
           let statePart = req.query.path
             ? get(this.state, req.query.path)
             : this.state
-          res.json(statePart)
+          res.json({ state: stringify(statePart) })
         })
 
         this.httpServer = expressApp.listen(port)
       }
+
+      let home = fs.mkdtempSync(os.tmpdir())
+      fs.mkdirSync(join(home, 'config'))
+
+      let genesisDestPath = join(home, 'config', 'genesis.json')
+      let privkeyDestPath = join(home, 'config', 'priv_validator_key.json')
+
+      fs.copyFileSync(
+        join(__filename, '..', '..', 'data', 'mock-genesis.json'),
+        genesisDestPath
+      )
+
+      fs.copyFileSync(
+        join(__filename, '..', '..', 'data', 'mock-priv_validator_key.json'),
+        privkeyDestPath
+      )
+
+      return { home, genesisPath: genesisDestPath }
     },
 
     run(blockOrTx) {
@@ -66,7 +89,7 @@ let MockedLotion: any = function(opts) {
           stateMachine.transition({ type: 'transaction', data: tx })
           errors.push(null)
         } catch (e) {
-          errors.push(e.message)
+          errors.push(e.stack)
         }
       })
       stateMachine.transition({ type: 'block', data: [] })
