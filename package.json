@@ -1,6 +1,6 @@
 {
   "name": "lotion-mock",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple utility to make it easier to write unit tests for Lotion applications.",
   "main": "dist/index.js",
   "directories": {
